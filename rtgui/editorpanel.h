@@ -56,7 +56,7 @@ private:
     bool realized;
 
 protected:
-    Gtk::ProgressBar  *progressLabel;
+    Gtk::ProgressBar  *progressBar;
     Gtk::ToggleButton* info;
     Gtk::ToggleButton* hidehp;
     Gtk::ToggleButton* tbShowHideSidePanels;
@@ -67,7 +67,7 @@ protected:
     Gtk::ToggleButton* beforeAfter;
     Gtk::HPaned* hpanedl;
     Gtk::HPaned* hpanedr;
-    Gtk::HBox* statusBox;
+    Gtk::HBox* StatusBoxHB;
     Gtk::Image *iHistoryShow, *iHistoryHide;
     Gtk::Image *iTopPanel_1_Show, *iTopPanel_1_Hide;
     Gtk::Image *iRightPanel_1_Show, *iRightPanel_1_Hide;

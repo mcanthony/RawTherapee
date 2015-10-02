@@ -120,17 +120,7 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
         tbTopPanel_1->set_image (*iTopPanel_1_Hide);
     }
 
-    tbRightPanel_1 = new Gtk::ToggleButton ();
-    iRightPanel_1_Show = new RTImage ("panel-to-left.png");
-    iRightPanel_1_Hide = new RTImage ("panel-to-right.png");
-    tbRightPanel_1->set_relief(Gtk::RELIEF_NONE);
-    tbRightPanel_1->set_active (true);
-    tbRightPanel_1->set_tooltip_markup (M("MAIN_TOOLTIP_SHOWHIDERP1"));
-    tbRightPanel_1->set_image (*iRightPanel_1_Hide);
-
     Gtk::VSeparator* vsepcl = Gtk::manage (new Gtk::VSeparator ());
-    Gtk::VSeparator* vsepz2 = Gtk::manage (new Gtk::VSeparator ());
-    Gtk::VSeparator* vsepz3 = Gtk::manage (new Gtk::VSeparator ());
     Gtk::VSeparator* vsepz4 = Gtk::manage (new Gtk::VSeparator ());
 
     iareapanel = new ImageAreaPanel ();
@@ -177,11 +167,12 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
     // main notebook
     vboxright->pack_start (*tpc->toolPanelNotebook);
 
-    // Save buttons
-    Gtk::HBox* iops = Gtk::manage (new Gtk::HBox ());
+    // --- start of bottom panel ---
+    Gtk::HBox* BottomPanelHB = Gtk::manage (new Gtk::HBox (false, 2));
 
-    //Gtk::Image *saveButtonImage = Gtk::manage (new Gtk::Image (Gtk::StockID("gtk-save"), Gtk::ICON_SIZE_BUTTON));
-    Gtk::Image *saveButtonImage =  Gtk::manage (new RTImage ("gtk-save-large.png"));
+    // Save buttons
+    Gtk::HBox* SaveButtonsHB = Gtk::manage (new Gtk::HBox());
+    Gtk::Image *saveButtonImage = Gtk::manage (new RTImage ("gtk-save-large.png"));
     saveimgas = Gtk::manage (new Gtk::Button ());
     saveimgas->add(*saveButtonImage);
     saveimgas->set_tooltip_markup(M("MAIN_BUTTON_SAVE_TOOLTIP"));
@@ -196,27 +187,35 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
     sendtogimp->add(*sendToEditorButtonImage);
     sendtogimp->set_tooltip_markup(M("MAIN_BUTTON_SENDTOEDITOR_TOOLTIP"));
 
-    iops->pack_start (*saveimgas, Gtk::PACK_SHRINK);
+    SaveButtonsHB->pack_start (*saveimgas, Gtk::PACK_SHRINK);
 
     if(!simpleEditor) {
-        iops->pack_start (*queueimg, Gtk::PACK_SHRINK);
+        SaveButtonsHB->pack_start (*queueimg, Gtk::PACK_SHRINK);
     }
 
-    iops->pack_start (*sendtogimp, Gtk::PACK_SHRINK);
+    SaveButtonsHB->pack_start (*sendtogimp, Gtk::PACK_SHRINK);
 
     // Status box
-    statusBox = Gtk::manage (new Gtk::HBox ());
-    progressLabel = Gtk::manage (new Gtk::ProgressBar());
-    progressLabel->set_fraction(0.0);
-    //progressLabel->modify_bg( Gtk::STATE_NORMAL,Gdk::Color("grey") );  // Disable, because in single mode this is may be permanent red without processing
+    StatusBoxHB = Gtk::manage (new Gtk::HBox ());
+    progressBar = Gtk::manage (new Gtk::ProgressBar());
+    progressBar->set_fraction(0.0);
 
-    statusBox->pack_start (*progressLabel);
-    iops->pack_start(*statusBox, Gtk::PACK_SHRINK, 2);
+    StatusBoxHB->pack_start (*progressBar);
 
-    // tbRightPanel_1
-    iops->pack_end (*tbRightPanel_1, Gtk::PACK_SHRINK, 0);
+    // Show/Hide Right Panel button
+    Gtk::HBox* ShowHidePanelsHB = Gtk::manage (new Gtk::HBox());
 
-    // ShowHideSidePanels
+    tbRightPanel_1 = new Gtk::ToggleButton ();
+    // TODO this seems like it would belong in a better place
+    iRightPanel_1_Show = new RTImage ("panel-to-left.png");
+    iRightPanel_1_Hide = new RTImage ("panel-to-right.png");
+    // end
+    tbRightPanel_1->set_relief(Gtk::RELIEF_NONE);
+    tbRightPanel_1->set_active (true);
+    tbRightPanel_1->set_tooltip_markup (M("MAIN_TOOLTIP_SHOWHIDERP1"));
+    tbRightPanel_1->set_image (*iRightPanel_1_Hide);
+
+    // Show/Hide Side Panels button
     tbShowHideSidePanels = new Gtk::ToggleButton ();
     iShowHideSidePanels = new RTImage ("crossed-arrows-out.png");
     iShowHideSidePanels_exit = new RTImage ("crossed-arrows-in.png");
@@ -224,13 +223,14 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
     tbShowHideSidePanels->set_active (false);
     tbShowHideSidePanels->set_tooltip_markup (M("MAIN_BUTTON_SHOWHIDESIDEPANELS_TOOLTIP"));
     tbShowHideSidePanels->set_image (*iShowHideSidePanels);
-    iops->pack_end (*tbShowHideSidePanels, Gtk::PACK_SHRINK, 0);
-    iops->pack_end (*vsepz2, Gtk::PACK_SHRINK, 1);
 
-    // Zoom panel
-    iops->pack_end (*iareapanel->imageArea->zoomPanel, Gtk::PACK_SHRINK, 1);
-    iops->pack_end (*vsepz3, Gtk::PACK_SHRINK, 2);
+    ShowHidePanelsHB->pack_start (*tbShowHideSidePanels, Gtk::PACK_SHRINK);
+    ShowHidePanelsHB->pack_start (*tbRightPanel_1, Gtk::PACK_SHRINK);
 
+    // Prev/Sync/Next buttons
+    Gtk::HBox* NavButtonsHB = Gtk::manage (new Gtk::HBox());
+
+    // TODO see if I can move this into the "if" below
     navPrev = navNext = navSync = NULL;
 
     if (!simpleEditor && !options.tabbedUI) {
@@ -256,14 +256,26 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
         navSync->set_relief(Gtk::RELIEF_NONE);
         navSync->set_tooltip_markup(M("MAIN_BUTTON_NAVSYNC_TOOLTIP"));
 
-        iops->pack_end (*Gtk::manage(new Gtk::VSeparator()), Gtk::PACK_SHRINK, 0);
-        iops->pack_end (*navNext, Gtk::PACK_SHRINK, 0);
-        iops->pack_end (*navSync, Gtk::PACK_SHRINK, 0);
-        iops->pack_end (*navPrev, Gtk::PACK_SHRINK, 0);
+        NavButtonsHB->pack_end (*navNext, Gtk::PACK_SHRINK, 0);
+        NavButtonsHB->pack_end (*navSync, Gtk::PACK_SHRINK, 0);
+        NavButtonsHB->pack_end (*navPrev, Gtk::PACK_SHRINK, 0);
     }
 
+    // Pack bottom panel
+    BottomPanelHB->pack_start (*SaveButtonsHB, Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_start (*Gtk::manage(new Gtk::VSeparator()), Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_start (*StatusBoxHB, Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*ShowHidePanelsHB, Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*Gtk::manage(new Gtk::VSeparator()), Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*iareapanel->imageArea->zoomPanel, Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*Gtk::manage(new Gtk::VSeparator()), Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*NavButtonsHB, Gtk::PACK_SHRINK);
+    BottomPanelHB->pack_end (*Gtk::manage(new Gtk::VSeparator()), Gtk::PACK_SHRINK);
+    // --- end of bottom panel ---
+
+    // TODO hsep needed?
     editbox->pack_start (*Gtk::manage(new Gtk::HSeparator()), Gtk::PACK_SHRINK, 0);
-    editbox->pack_start (*iops, Gtk::PACK_SHRINK, 0);
+    editbox->pack_start (*BottomPanelHB, Gtk::PACK_SHRINK, 0);
     editbox->show_all ();
 
     // build screen
@@ -723,7 +735,7 @@ void EditorPanel::setProgress (double p)
 {
     spparams *s = new spparams;
     s->val = p;
-    s->pProgress = progressLabel;
+    s->pProgress = progressBar;
     g_idle_add (setprogressStrUI, s);
 }
 
@@ -732,7 +744,7 @@ void EditorPanel::setProgressStr (Glib::ustring str)
     spparams *s = new spparams;
     s->str = str;
     s->val = -1;
-    s->pProgress = progressLabel;
+    s->pProgress = progressBar;
     g_idle_add (setprogressStrUI, s);
 }
 
@@ -740,7 +752,7 @@ void EditorPanel::setProgressStr (Glib::ustring str)
 void EditorPanel::refreshProcessingState (bool inProcessingP)
 {
     spparams *s = new spparams;
-    s->pProgress = progressLabel;
+    s->pProgress = progressBar;
 
     if (inProcessingP) {
         if (processingStartedTime == 0) {
