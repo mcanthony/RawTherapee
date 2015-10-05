@@ -142,9 +142,7 @@ ICMPanel::ICMPanel () : FoldableToolPanel(this, "icm", M("TP_ICM_LABEL")), iunch
     iFrame->add(*iVBox);
     pack_start (*iFrame, Gtk::PACK_EXPAND_WIDGET, 4);
 
-
     // ---------------------------- Working profile
-
 
     Gtk::Frame *wFrame = Gtk::manage (new Gtk::Frame(M("TP_ICM_WORKINGPROFILE")) );
     wFrame->set_border_width(0);
@@ -164,12 +162,24 @@ ICMPanel::ICMPanel () : FoldableToolPanel(this, "icm", M("TP_ICM_LABEL")), iunch
 
     wnames->set_active (0);
 
-    wFrame->add(*wVBox);
+    Gtk::HBox* RenderingIntentHB = Gtk::manage (new Gtk::HBox(4));
+    Gtk::Label* RenderingIntentL = Gtk::manage (new Gtk::Label (M("TP_ICM_RENDERINGINTENT") + ":"));
+    MyComboBoxText* RenderingIntentCombo = Gtk::manage (new MyComboBoxText());
+    // TODO only show valid options below, as maybe some are impossible due to the chosen working/output profile combination:
+    RenderingIntentCombo->append_text ("Relative colorimetric");
+    RenderingIntentCombo->append_text ("Perceptual");
+    RenderingIntentCombo->append_text ("Absolute colorimetric");
+    RenderingIntentCombo->append_text ("Saturation");
+    RenderingIntentCombo->set_active (0);
+    RenderingIntentHB->pack_start (*RenderingIntentL, Gtk::PACK_SHRINK);
+    RenderingIntentHB->pack_start (*RenderingIntentCombo, Gtk::PACK_EXPAND_WIDGET);
+
+    wVBox->pack_start (*RenderingIntentHB, Gtk::PACK_SHRINK, 4);
+
+    wFrame->add (*wVBox);
     pack_start (*wFrame, Gtk::PACK_EXPAND_WIDGET, 4);
 
-
     // ---------------------------- Output profile
-
 
     Gtk::Frame *oFrame = Gtk::manage (new Gtk::Frame(M("TP_ICM_OUTPUTPROFILE")) );
     oFrame->set_border_width(0);

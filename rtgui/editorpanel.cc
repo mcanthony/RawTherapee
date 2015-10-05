@@ -203,21 +203,24 @@ EditorPanel::EditorPanel (FilePanel* filePanel)
     StatusBoxHB->pack_start (*progressBar);
 
     // Monitor profile and rendering intent
-    Gtk::HBox* MonProfHB = Gtk::manage (new Gtk::HBox ());
+    Gtk::HBox* MonProfHB = Gtk::manage (new Gtk::HBox (false, 4));
     MyComboBoxText* MonProfCombo = Gtk::manage (new MyComboBoxText());
-    MonProfCombo->append_text ("foo1");
-    MonProfCombo->append_text ("foo2");
-    MonProfCombo->append_text ("foo3");
+    MonProfCombo->append_text ("Monitor1");
+    MonProfCombo->append_text ("Monitor2");
+    MonProfCombo->set_active (0);
     MonProfCombo->set_size_request (-1, -1);
-    Gtk::Button* MonProfAdd = Gtk::manage (new Gtk::Button());
-    Gtk::Image* MonProfAddIcon = Gtk::manage (new RTImage ("gtk-add.png"));
-    MonProfAdd->add (*MonProfAddIcon);
-    Gtk::Button* MonProfDel = Gtk::manage (new Gtk::Button());
-    Gtk::Image* MonProfDelIcon = Gtk::manage (new RTImage ("gtk-remove.png"));
-    MonProfDel->add (*MonProfDelIcon);
+
+    MyComboBoxText* MonRenderingIntentCombo = Gtk::manage (new MyComboBoxText());
+    // TODO only show valid options below, as maybe some are unsupported by the chosen monitor profile:
+    MonRenderingIntentCombo->append_text ("Relative colorimetric");
+    MonRenderingIntentCombo->append_text ("Perceptual");
+    MonRenderingIntentCombo->append_text ("Absolute colorimetric");
+    MonRenderingIntentCombo->append_text ("Saturation");
+    MonRenderingIntentCombo->set_active (0);
+    MonRenderingIntentCombo->set_size_request (-1, -1);
+
     MonProfHB->pack_start (*MonProfCombo, Gtk::PACK_SHRINK);
-    MonProfHB->pack_start (*MonProfAdd, Gtk::PACK_SHRINK);
-    MonProfHB->pack_start (*MonProfDel, Gtk::PACK_SHRINK);
+    MonProfHB->pack_start (*MonRenderingIntentCombo, Gtk::PACK_SHRINK);
 
     // Show/Hide Right Panel button
     Gtk::HBox* ShowHidePanelsHB = Gtk::manage (new Gtk::HBox());
