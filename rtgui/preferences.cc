@@ -685,44 +685,36 @@ Gtk::Widget* Preferences::getColorManagementPanel ()
     intent->append_text (M("PREFERENCES_INTENT_ABSOLUTE"));
     */
 
+    Gtk::HBox* OutputProfDirHB = Gtk::manage (new Gtk::HBox (4));
+    Gtk::Label* pdlabel = Gtk::manage (new Gtk::Label (M("PREFERENCES_ICCDIR") + ":"));
     iccDir = Gtk::manage (new Gtk::FileChooserButton (M("PREFERENCES_ICCDIR"), Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER));
-    Gtk::Label* pdlabel = Gtk::manage (new Gtk::Label (M("PREFERENCES_ICCDIR") + ":", Gtk::ALIGN_LEFT));
+    OutputProfDirHB->pack_start (*pdlabel, Gtk::PACK_SHRINK);
+    OutputProfDirHB->pack_start (*iccDir, Gtk::PACK_EXPAND_WIDGET);
+    mvbcm->pack_start (*OutputProfDirHB);
 
-    Gtk::FileFilter monProfileFilter_colprof;
-    monProfileFilter_colprof.set_name(M("FILECHOOSER_FILTER_COLPROF"));
-    monProfileFilter_colprof.add_pattern("*.icc");
-    monProfileFilter_colprof.add_pattern("*.ICC");
-    monProfileFilter_colprof.add_pattern("*.icm");
-    monProfileFilter_colprof.add_pattern("*.ICM");
-    Gtk::FileFilter monProfileFilter_any;
-    monProfileFilter_any.set_name(M("FILECHOOSER_FILTER_ANY"));
-    monProfileFilter_any.add_pattern("*");
+    Gtk::FileFilter MonProfileChooserFilter_colprof;
+    MonProfileChooserFilter_colprof.set_name(M("FILECHOOSER_FILTER_COLPROF"));
+    MonProfileChooserFilter_colprof.add_pattern("*.icc");
+    MonProfileChooserFilter_colprof.add_pattern("*.ICC");
+    MonProfileChooserFilter_colprof.add_pattern("*.icm");
+    MonProfileChooserFilter_colprof.add_pattern("*.ICM");
+    Gtk::FileFilter MonProfileChooserFilter_any;
+    MonProfileChooserFilter_any.set_name(M("FILECHOOSER_FILTER_ANY"));
+    MonProfileChooserFilter_any.add_pattern("*");
 
-    monProfile = Gtk::manage (new Gtk::FileChooserButton (M("PREFERENCES_MONITORICC"), Gtk::FILE_CHOOSER_ACTION_OPEN));
-    monProfile->add_filter (monProfileFilter_colprof);
-    monProfile->add_filter (monProfileFilter_any);
-    Gtk::Label* mplabel = Gtk::manage (new Gtk::Label (M("PREFERENCES_MONITORICC") + ":", Gtk::ALIGN_LEFT));
+    MonProfileChooser = Gtk::manage (new Gtk::FileChooserButton (M("PREFERENCES_MONITORICC"), Gtk::FILE_CHOOSER_ACTION_OPEN));
+    MonProfileChooser->add_filter (monProfileChooserFilter_colprof);
+    MonProfileChooser->add_filter (monProfileChooserFilter_any);
+    Gtk::Label* mplabel = Gtk::manage (new Gtk::Label (M("PREFERENCES_MONITORICC") + ":"));
 
-#if defined(WIN32) // Auto-detection not implemented for Linux, see issue 851
+    Gtk::TreeView* MonProfTree = Gtk::manage (new Gtk::TreeView());
+    MonProfTreeModel = Gtk::ListStore::create (MonProfTreeColumns);
+    MonProfTree->set_model (MonProfTreeModel);
+
+#if defined(WIN32) // Auto-detection not implemented for other OSs, see https://github.com/Beep6581/RawTherapee/issues/839
     cbAutoMonProfile = Gtk::manage (new Gtk::CheckButton (M("PREFERENCES_AUTOMONPROFILE")));
     autoMonProfileConn  = cbAutoMonProfile->signal_toggled().connect (sigc::mem_fun(*this, &Preferences::autoMonProfileToggled));
-#endif
-
-    Gtk::Table* colt = Gtk::manage (new Gtk::Table (3, 2));
-    //colt->attach (*intlab, 0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 2, 2);
-    //colt->attach (*intent, 1, 2, 0, 1, Gtk::EXPAND | Gtk::FILL | Gtk::SHRINK, Gtk::SHRINK, 2, 2);
-    colt->attach (*pdlabel, 0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 2, 2);
-    colt->attach (*iccDir, 1, 2, 1, 2, Gtk::EXPAND | Gtk::FILL | Gtk::SHRINK, Gtk::SHRINK, 2, 2);
-#if !defined(__APPLE__) // monitor profile not supported on apple
-    colt->attach (*mplabel, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 2, 2);
-    colt->attach (*monProfile, 1, 2, 2, 3, Gtk::EXPAND | Gtk::FILL | Gtk::SHRINK, Gtk::SHRINK, 2, 2);
-#if defined(WIN32)
-    colt->attach (*cbAutoMonProfile, 1, 2, 3, 4, Gtk::EXPAND | Gtk::FILL | Gtk::SHRINK, Gtk::SHRINK, 2, 2);
-#endif
-#endif
-    mvbcm->pack_start (*colt, Gtk::PACK_SHRINK, 4);
-
-#if defined(WIN32)
+    mvbcm->pack_start (*cbAutoMonProfile);
     autoMonProfileToggled();
 #endif
 
